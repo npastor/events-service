@@ -1,6 +1,8 @@
 package com.takeaway.challenge.controller;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,19 +28,6 @@ public class EventController {
     @Autowired
     private EventRepository repo;
 
-    @GetMapping()
-    @ResponseStatus(code = HttpStatus.OK)
-    @ApiOperation(value = "Gets all events",
-                  response = EventDto.class,
-                  responseContainer = "List",
-                  produces = "application/json")
-    public List<EventDto> getEvents() {
-        return repo.findAll()
-                   .stream()
-                   .map(event -> new EventDto().id(event.getId()).employeeId(event.getEmployeeId()).action(event.getAction()))
-                   .collect(Collectors.toList());
-    }
-
     @GetMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
     @ApiOperation(value = "Gets events related to an employee by employee id",
@@ -46,9 +35,11 @@ public class EventController {
                   responseContainer = "List",
                   produces = "application/json")
     public List<EventDto> getEventsByEmployeeId(@ApiParam(value = "Employee ID", required = true) @PathVariable(value = "id") Integer id) {
-        return repo.findByEmployeeId(id)
-                   .stream()
-                   .map(event -> new EventDto().id(event.getId()).employeeId(event.getEmployeeId()).action(event.getAction()))
-                   .collect(Collectors.toList());
+
+        return Optional.ofNullable(repo.findByEmployeeIdOrderById(id))
+                       .orElseGet(Collections::emptyList)
+                       .stream()
+                       .map(event -> new EventDto().action(event.getAction()))
+                       .collect(Collectors.toList());
     }
 }

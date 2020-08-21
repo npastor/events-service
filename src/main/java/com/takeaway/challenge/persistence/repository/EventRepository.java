@@ -8,6 +8,6 @@ import com.takeaway.challenge.persistence.model.Event;
 
 public interface EventRepository extends JpaRepository<Event, Integer> {
 
-    public List<Event> findByEmployeeId(Integer empId);
+    public List<Event> findByEmployeeIdOrderById(Integer empId);
 
 }
